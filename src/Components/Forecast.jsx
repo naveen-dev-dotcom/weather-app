@@ -1,6 +1,27 @@
 import React from "react";
 
 const Forecast = ({ forecastWeather, location }) => {
+  const accordionItemStyle = {
+    backgroundColor: "rgba(85, 141, 146, 0.5)", // Custom color with 50% opacity
+    color: "#000", // Black text color
+    borderRadius: "5px", // Rounded corners
+    marginBottom: "1rem", // Margin between accordion items
+    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Optional: subtle shadow for depth
+  };
+
+  const accordionHeaderStyle = {
+    backgroundColor: "transparent", // Make header background transparent
+    color: "#000", // Text color for header
+    border: "none", // Remove border
+    fontWeight: "bold", // Bold text for header
+    padding: "15px", // Adjust padding for header
+    fontSize: "1rem", // Font size for the header
+    cursor: "pointer", // Make header clickable
+    display: "flex", // Flex layout for header content
+    alignItems: "center", // Vertically align items
+    justifyContent: "space-between", // Space between elements
+  };
+
   return (
     <div className="container mt-5">
       <h4 className="text-white text-center">
@@ -9,26 +30,17 @@ const Forecast = ({ forecastWeather, location }) => {
       <div className="accordion accordion-flush" id="accordionFlushExample">
         {forecastWeather.forecastday.map((data, index) => {
           return (
-            <div className="accordion-item rounded" key={index}>
-              <h2 className="accordion-header">
-                <button
-                  className="accordion-button collapsed rounded"
-                  type="button"
-                  data-bs-toggle="collapse"
-                  data-bs-target={`#flush-collapse${index}`}
-                  aria-expanded="false"
-                  aria-controls={`flush-collapse${index}`}
-                >
-                  <div className="d-flex flex-row align-items-center mb-3">
-                    <div className="p-2">Day: {data.date}</div>
-                    <div className="p-2">
-                      <img src={data.day.condition.icon} alt={data.day.condition.text} />
-                    </div>
-                    <div className="p-2">{data.day.condition.text}</div>
-                    <div className="p-2">Max temp: {data.day.maxtemp_c} °C</div>
+            <div className="accordion-item" key={index} style={accordionItemStyle}>
+              <div className="accordion-header" style={accordionHeaderStyle} data-bs-toggle="collapse" data-bs-target={`#flush-collapse${index}`} aria-expanded="false" aria-controls={`flush-collapse${index}`}>
+                <div className="d-flex flex-row align-items-center mb-3">
+                  <div className="p-2">Day: {data.date}</div>
+                  <div className="p-2">
+                    <img src={data.day.condition.icon} alt={data.day.condition.text} />
                   </div>
-                </button>
-              </h2>
+                  <div className="p-2">{data.day.condition.text}</div>
+                  <div className="p-2">Max temp: {data.day.maxtemp_c} °C</div>
+                </div>
+              </div>
               <div
                 id={`flush-collapse${index}`}
                 className="accordion-collapse collapse"

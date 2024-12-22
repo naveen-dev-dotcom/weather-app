@@ -1,29 +1,33 @@
 import React from "react";
 
+// Card style for WeatherCard component
 const cardStyle = {
-  backgroundColor: "white", // Card background color
-  color: "black", // Text color
-  border: "1px solid #f8f9fa", // Light border color
-  borderRadius: "10px", // Rounded corners
-  marginBottom: "1rem", // Margin between cards
-  height: "150px", // Fixed height for all cards
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  alignItems: "center",
+  backgroundColor: "rgba(85, 141, 146, 0.5)", // Semi-transparent light blue
+  color: "#000", // Black text color
+  padding: "15px", // Spacing inside the card
+  borderRadius: "5px", // Rounded corners
+  fontWeight: "bold", 
+  fontSize: "1rem", 
+  textAlign: "center", // Center-align content
+  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Optional: subtle shadow for depth
+  margin: "10px", // Space between cards
+  height: "100%", // Ensure full-height content
 };
 
+// Image style for weather condition icon
 const imageStyle = {
   maxWidth: "100%", // Responsive image width
   maxHeight: "80%", // Limit image height
   objectFit: "contain", // Maintain aspect ratio
 };
 
+// WeatherCard component that takes title and content as props
 const WeatherCard = ({ title, content }) => (
   <div className="col-3">
     <div style={cardStyle}>
       <div className="card-body d-flex flex-column align-items-center justify-content-center" style={{ height: "100%" }}>
-        <h5 className="card-title">{title}: {content}</h5>
+        <h5 className="card-title">{title}</h5>
+        <div className="card-content">{content}</div>
       </div>
     </div>
   </div>
