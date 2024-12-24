@@ -6,17 +6,32 @@ import Forecast from "./Components/Forecast";
 import '../node_modules/bootstrap/dist/js/bootstrap';
 
 export default function App() {
-  const [city, setCity] = useState();
-  const [ClickedCity, setClickedCity] = useState();
+  const [city, setCity] = useState("");
+  const [clickedCity, setClickedCity] = useState("");
   const [citySuggestion, setCitySuggestion] = useState([]);
-  const [currentWeather, setCurrent] = useState();
-  const [forecastWeather, setForecast] = useState();
-  const [location, setLocation] = useState();
+  const [currentWeather, setCurrentWeather] = useState(null);
+  const [forecastWeather, setForecastWeather] = useState(null);
+  const [location, setLocation] = useState(null);
+  const [error, setError] = useState(null);
+  const [isOffline, setIsOffline] = useState(false);
+
   const autoCompURL = import.meta.env.VITE_WEATHER_API_KEY;
   const cityURL = import.meta.env.VITE_WEATHER_API_CITY;
   const BGIMG = import.meta.env.VITE_BACKGROUND_IMG;
 
   const WeatherURL = (city) => `${cityURL}${city}&days=7&aqi=no&alerts=no`;
+
+  useEffect(() => {
+    // Check internet connection
+    const handleOnlineStatus = () => setIsOffline(!navigator.onLine);
+    window.addEventListener("online", handleOnlineStatus);
+    window.addEventListener("offline", handleOnlineStatus);
+
+    return () => {
+      window.removeEventListener("online", handleOnlineStatus);
+      window.removeEventListener("offline", handleOnlineStatus);
+    };
+  }, []);
 
   useEffect(() => {
     if (city && city.length > 3) {
@@ -27,36 +42,38 @@ export default function App() {
   const fetchAutoCompAPI = async () => {
     try {
       const response = await axios.get(autoCompURL + city);
-      const resp = response.data;
-      console.log("api call", resp);
-      const cityData = resp.map((data) => {
-        return `${data.name},${data.region},${data.country}`;
-      });
-      setCitySuggestion(cityData);
+      if (response.data) {
+        const cityData = response.data.map(
+          (data) => `${data.name},${data.region},${data.country}`
+        );
+        setCitySuggestion(cityData);
+      } else {
+        setCitySuggestion([]);
+        setError("No suggestions found. Please try a different query.");
+      }
     } catch (e) {
-      console.log("error", e);
+      setError("Error fetching city suggestions. Please try again.");
     }
   };
 
   const handleSelectedCity = (city) => {
-    console.log("Clicked city", city);
     setClickedCity(city);
     fetchWeatherAPI(city);
-    setCitySuggestion();
+    setCitySuggestion([]);
   };
 
   const fetchWeatherAPI = async (city) => {
     try {
       const response = await axios.get(WeatherURL(city));
-      const resp = response.data;
-      setCurrent(resp.current);
-      setForecast(resp.forecast);
-      setLocation(resp.location);
-      console.log('Current', resp.current);
-      console.log('Forecast', resp.forecast);
-      console.log('Location', resp.location);
+      if (response.data) {
+        setCurrentWeather(response.data.current);
+        setForecastWeather(response.data.forecast);
+        setLocation(response.data.location);
+      } else {
+        setError("Weather data not available for the selected city.");
+      }
     } catch (e) {
-      console.log("Weather API error", e);
+      setError("Error fetching weather data. Please try again.");
     }
   };
 
@@ -65,51 +82,53 @@ export default function App() {
       className="bg-opacity-75 p-5"
       style={{
         backgroundImage: `url(${BGIMG})`,
-        backgroundSize: "cover", // Ensures the image covers the entire screen
-        backgroundPosition: "center", // Centers the image
-        backgroundRepeat: "no-repeat", // Prevents the image from repeating
-        backgroundAttachment: "fixed", // Makes the background static (doesn't move when scrolling)
-        minHeight: "100vh", // Ensures the container takes up the entire screen height
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+        minHeight: "100vh",
       }}
     >
+      {isOffline && (
+        <div className="alert alert-warning text-center">
+          You are offline. Please check your internet connection.
+        </div>
+      )}
       <input
         type="text"
-        value={ClickedCity || city} // Set value to ClickedCity if available, otherwise use city
+        value={clickedCity || city}
         placeholder="Enter city name"
         className="form-control"
         style={{
           padding: '15px',
-          fontSize: "1rem", 
+          fontSize: "1rem",
           fontWeight: "bold",
-          backgroundColor: 'rgba(85, 141, 146, 0.5)', 
+          backgroundColor: 'rgba(85, 141, 146, 0.5)',
           color: '#000',
         }}
         onChange={(e) => {
-          setCity(e.target.value); // Update city state
-          setClickedCity(""); // Reset ClickedCity when typing
-          if (e.target.value === "") {
-            setCurrent();
-            setForecast();
-            setLocation();
-            setClickedCity();
+          setCity(e.target.value);
+          setClickedCity("");
+          if (!e.target.value) {
+            setCurrentWeather(null);
+            setForecastWeather(null);
+            setLocation(null);
           }
         }}
       />
-
-      {citySuggestion &&
-        citySuggestion.map((city, index) => {
-          return (
-            <div
-              key={index}
-              className="text-center bg-info rounded p-1 bg-opacity-10 border border-info border-opacity-25 text-white"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleSelectedCity(city)}
-            >
-              {city}
-            </div>
-          );
-        })}
-
+      {error && (
+        <div className="alert alert-danger text-center mt-2">{error}</div>
+      )}
+      {citySuggestion.map((city, index) => (
+        <div
+          key={index}
+          className="text-center bg-info rounded p-1 bg-opacity-10 border border-info border-opacity-25 text-white"
+          style={{ cursor: "pointer" }}
+          onClick={() => handleSelectedCity(city)}
+        >
+          {city}
+        </div>
+      ))}
       {currentWeather && <Current currentWeather={currentWeather} location={location} />}
       {forecastWeather && <Forecast forecastWeather={forecastWeather} location={location} />}
     </div>
