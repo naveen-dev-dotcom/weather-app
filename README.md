@@ -59,7 +59,7 @@ cd weather-app
 npm install
 npm run dev
 ```
-📚 What I Learned
+##📚 What I Learned
 
 1.How to integrate a third-party REST API into a React application
 
@@ -71,7 +71,9 @@ npm run dev
 
 5.Deploying a frontend application to Netlify
 
-🧠 Challenges Faced
+---
+
+##🧠 Challenges Faced
 
 1.Implementing smooth character-by-character deletion of city names using backspace
 
